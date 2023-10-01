@@ -1,0 +1,28 @@
+VLAD PROPER:
+
+Made some changes regarding the for loops and browser submission and closing. Could break. Make sure to test with
+multiple and 0 sites.
+
+Use PyCharm to format code properly
+Figure out what exceptions will be thrown, if there are exceptions, and account for them in the try-except
+Sometimes can't find knownPhishingSites, in PyCharm
+Forms other than Google Forms
+Different types of phished input
+Automatic phishing form detection
+REST API
+More robust and precise question detection. This appears to be what Vlad will be good at. 
+Go directly to the source and ignore the forms for non-googleSoft forms? 
+If a link is dead, just ignore it
+Convert to database instead of text? Would require a constantly-running database, but that could be done with mySQL on
+linux, probably
+Malicious domains (like squarespace), VLAD poisons through headers, without worrying about forms, different headers
+
+Does VLAD need:
+* IP obscuration? 
+
+
+VLAD'S Scout:
+
+Terminal HUD
+Error handling for if internet goes offline (shouldn't with physical wire, but nonetheless)
+Clicking on newest email not working
