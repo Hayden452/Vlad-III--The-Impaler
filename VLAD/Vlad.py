@@ -28,7 +28,7 @@ printVladLogo()
 # Main
 while True:
     # Determining sites to attack
-    with open("SITES/SITES-KnownPhishingSpots.txt", 'r') as file:
+    with open("SITES-KnownPhishingSpots.txt", 'r') as file:
         listOfPhishingSpots = file.readlines()
 
     if len(listOfPhishingSpots) != 0:
