@@ -220,6 +220,7 @@ def printVladLogo():
      print(Style.RESET_ALL)
 
 def printVladScoutLogo():
+     print('\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n')
      print('__     __  _          _      ____    _   ____  ')
      print('\ \   / / | |        / \    |  _ \  ( ) / ___|')
      print(' \ \ / /  | |       / _ \   | | | | |/  \___ \\')

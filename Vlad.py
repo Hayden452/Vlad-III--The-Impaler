@@ -137,10 +137,10 @@ while True:
               "    Last Attack Cycle: ", str(timeThisRound), " seconds", end='\r')
 
         # Exit code
-        time.sleep(3)
+        time.sleep(30)
         currentSiteIndex = + 1
         listOfAnswers = []
         answerListCounter = 0
     else:
-        time.sleep(3)
+        time.sleep(30)
         noSites = False
