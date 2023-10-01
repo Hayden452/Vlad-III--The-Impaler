@@ -131,10 +131,17 @@ while True:
 
         # Timer
         lapTimeEnd = time.time()
-        timeThisRound = lapTimeEnd - lapTimeStart
-        totalUpTime = (time.time() - startTime)
-        print(Fore.CYAN + "Number of Attacks: ", str(numberOfAttacks), "    Uptime: ", str(totalUpTime), " seconds",
-              "    Last Attack Cycle: ", str(timeThisRound), " seconds", end='\r')
+
+        timeSecondsThisRound = (lapTimeEnd - lapTimeStart) % 60
+        totalSecondsUpTime = round(((time.time() - startTime) % 60), 2)
+
+        totalMinutesUpTime = round(((totalSecondsUpTime) / 60), 1)
+        totalHoursUpTime = round(((totalMinutesUpTime) / 60), 1)
+        totalDaysUpTime = round(((totalHoursUpTime) / 24), 1)
+
+
+        print(Fore.CYAN + "Number of Attacks: ", str(numberOfAttacks), "    Uptime: ", str(totalDaysUpTime), " days, ", str(totalHoursUpTime), " hours, ", str(totalMinutesUpTime), " minutes, ", str(totalSecondsUpTime), " seconds",
+              "    Last Attack Cycle: ", str(timeSecondsThisRound), " seconds", end='\r')
 
         # Exit code
         time.sleep(30)
