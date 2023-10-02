@@ -5,7 +5,7 @@ import random
 from ExternalMethods import SelectPoison, findQuery, replaceAllCapitalsInCharacter, printVladLogo
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from colorama import Fore, Style
+from colorama import Fore
 version = '1.3'
 answerListCounter = 0
 listOfTextLists = []
@@ -133,9 +133,10 @@ while True:
         lapTimeEnd = time.time()
 
         timeSecondsThisRound = (lapTimeEnd - lapTimeStart) % 60
-        totalSecondsUpTime = round(((time.time() - startTime) % 60), 2)
+        totalSeconds = (lapTimeEnd - startTime)
+        totalSecondsUpTime = round((totalSeconds % 60), 2)
 
-        totalMinutesUpTime = round(((totalSecondsUpTime) / 60), 1)
+        totalMinutesUpTime = round(((totalSeconds) / 60), 1)
         totalHoursUpTime = round(((totalMinutesUpTime) / 60), 1)
         totalDaysUpTime = round(((totalHoursUpTime) / 24), 1)
 
