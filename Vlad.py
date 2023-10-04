@@ -21,6 +21,7 @@ potentialText = object
 tempWord = ''
 numberOfAttacks = 0
 startTime = time.time()
+numberOfFailures = 0
 
 # Vlad
 printVladLogo()
@@ -45,105 +46,109 @@ while True:
 
         # Attacking each site
         for spot in listOfPhishingSpots:
-            # Site prep:
-            numberOfAttacks += 1
-            browser = webdriver.Firefox()
-            browser.get(spot)
+            try:
+                # Site prep:
+                numberOfAttacks += 1
+                browser = webdriver.Firefox()
+                browser.get(spot)
 
-            # Finding all input boxes on page
-            listOfImportantElements = browser.find_elements(By.CSS_SELECTOR, "input[type='text']")
+                # Finding all input boxes on page
+                listOfImportantElements = browser.find_elements(By.CSS_SELECTOR, "input[type='text']")
 
-            # Finding all phishing queries of the user
-            for childElement in listOfImportantElements:
-                while not isQuery:
-                    parentElement = childElement.find_element(By.XPATH, '..')
+                # Finding all phishing queries of the user
+                for childElement in listOfImportantElements:
+                    while not isQuery:
+                        parentElement = childElement.find_element(By.XPATH, '..')
+                        try:
+                            parentElement.find_element(By.CSS_SELECTOR, "#i1 > span:nth-child(1)")
+                            isQuery = True
+                            potentialText = parentElement.text
+                        except:
+                            childElement = parentElement
+                            isQuery = False
+                    isQuery = False
+
+                # Formatting, converting to lowercase
+                capitalQuestionList = potentialText.split('\n')
+                while 'Your answer' in capitalQuestionList:
+                    capitalQuestionList.remove('Your answer')
+                while '*' in capitalQuestionList:
+                    capitalQuestionList.remove('*')
+
+                for word in capitalQuestionList:
+                    for char in word:
+                        tempWord = tempWord + (replaceAllCapitalsInCharacter(char))
+                    questionList.append(str(tempWord))
+                    tempWord = ''
+                listOfTextLists.append(questionList)
+        # ======================================================================== #
+                # Random values selection:
+
+                # Selecting poison (fake data). Must pass it (randomBaseNumber, newNameCounter, personalEmailRandomizing)
+                # returns in following list format: 
+                # randomValues[0] = Full name
+                # randomValues[1] = First name
+                # randomValues[2] = Last name
+                # randomValues[3] = Address
+                # randomValues[4] = Password
+                # randomValues[5] = all-lowercase union email
+                # randomValues[6] = all-lowercase personal email
+                # randomValues[7] = apartment number
+                # randomValues[8] = city
+                # randomValues[9] = age
+                # randomValues[10] = zip code
+                # randomValues[11] = state
+                # randomValues[12] = cell phone
+                randomBaseNumber = random.randint(0, 55555)
+                randomValues.clear()
+                randomValues = SelectPoison(randomBaseNumber, newNameCounter, personalEmailRandomizing)
+        # ======================================================================== #
+                # Preparation for what the phishing site is looking for
+                listOfQuestions = listOfTextLists[currentSiteIndex]
+
+                for question in listOfQuestions:
+                    # Returns answers for questions in order. 
+                    listOfAnswers.append(findQuery(question, randomValues))
+
+                # Clicks the submit button twice. There is a possibility that the submit button is temporarily hidden, 
+                # so we click the button the second just to be safe. This should throw an error, which we ignore, but it
+                # could be useful in cases where the number of button clicks needed is unknown.
+                for element in listOfImportantElements:
                     try:
-                        parentElement.find_element(By.CSS_SELECTOR, "#i1 > span:nth-child(1)")
-                        isQuery = True
-                        potentialText = parentElement.text
-                    except:
-                        childElement = parentElement
-                        isQuery = False
-                isQuery = False
+                        element.click()
+                        element.send_keys(listOfAnswers[answerListCounter])
+                        answerListCounter += 1
+                    except Exception as e:
+                        element.click()
+                        element.send_keys(listOfAnswers[answerListCounter])
+                        answerListCounter += 1
+                answerListCounter = 0
 
-            # Formatting, converting to lowercase
-            capitalQuestionList = potentialText.split('\n')
-            while 'Your answer' in capitalQuestionList:
-                capitalQuestionList.remove('Your answer')
-            while '*' in capitalQuestionList:
-                capitalQuestionList.remove('*')
+                # Finding the submit element, submitting form.
+                submitElement = browser.find_element(By.CSS_SELECTOR, "span[class='NPEfkd RveJvd snByac']")
+                submitElement.click()
 
-            for word in capitalQuestionList:
-                for char in word:
-                    tempWord = tempWord + (replaceAllCapitalsInCharacter(char))
-                questionList.append(str(tempWord))
-                tempWord = ''
-            listOfTextLists.append(questionList)
-    # ======================================================================== #
-            # Random values selection:
+                # Closing
+                browser.close()
 
-            # Selecting poison (fake data). Must pass it (randomBaseNumber, newNameCounter, personalEmailRandomizing)
-            # returns in following list format: 
-            # randomValues[0] = Full name
-            # randomValues[1] = First name
-            # randomValues[2] = Last name
-            # randomValues[3] = Address
-            # randomValues[4] = Password
-            # randomValues[5] = all-lowercase union email
-            # randomValues[6] = all-lowercase personal email
-            # randomValues[7] = apartment number
-            # randomValues[8] = city
-            # randomValues[9] = age
-            # randomValues[10] = zip code
-            # randomValues[11] = state
-            # randomValues[12] = cell phone
-            randomBaseNumber = random.randint(0, 55555)
-            randomValues.clear()
-            randomValues = SelectPoison(randomBaseNumber, newNameCounter, personalEmailRandomizing)
-    # ======================================================================== #
-            # Preparation for what the phishing site is looking for
-            listOfQuestions = listOfTextLists[currentSiteIndex]
+                # Timer
+                lapTimeEnd = time.time()
 
-            for question in listOfQuestions:
-                # Returns answers for questions in order. 
-                listOfAnswers.append(findQuery(question, randomValues))
+                timeSecondsThisRound = (lapTimeEnd - lapTimeStart) % 60
+                totalSeconds = (lapTimeEnd - startTime)
+                totalSecondsUpTime = round((totalSeconds % 60), 2)
 
-            # Clicks the submit button twice. There is a possibility that the submit button is temporarily hidden, 
-            # so we click the button the second just to be safe. This should throw an error, which we ignore, but it
-            # could be useful in cases where the number of button clicks needed is unknown.
-            for element in listOfImportantElements:
-                try:
-                    element.click()
-                    element.send_keys(listOfAnswers[answerListCounter])
-                    answerListCounter += 1
-                except Exception as e:
-                    element.click()
-                    element.send_keys(listOfAnswers[answerListCounter])
-                    answerListCounter += 1
-            answerListCounter = 0
-
-            # Finding the submit element, submitting form.
-            submitElement = browser.find_element(By.CSS_SELECTOR, "span[class='NPEfkd RveJvd snByac']")
-            submitElement.click()
-
-            # Closing
-            browser.close()
-
-        # Timer
-        lapTimeEnd = time.time()
-
-        timeSecondsThisRound = (lapTimeEnd - lapTimeStart) % 60
-        totalSeconds = (lapTimeEnd - startTime)
-        totalSecondsUpTime = round((totalSeconds % 60), 2)
-
-        totalMinutesUpTime = round(((totalSeconds) / 60), 1)
-        totalHoursUpTime = round(((totalMinutesUpTime) / 60), 1)
-        totalDaysUpTime = round(((totalHoursUpTime) / 24), 1)
+                totalMinutesUpTime = round(((totalSeconds) / 60), 1)
+                totalHoursUpTime = round(((totalMinutesUpTime) / 60), 1)
+                totalDaysUpTime = round(((totalHoursUpTime) / 24), 1)
 
 
-        print(Fore.CYAN + "Number of Attacks: ", str(numberOfAttacks), "    Uptime: ", str(totalDaysUpTime), " days, ", str(totalHoursUpTime), " hours, ", str(totalMinutesUpTime), " minutes, ", str(totalSecondsUpTime), " seconds",
-              "    Last Attack Cycle: ", str(timeSecondsThisRound), " seconds", end='\r')
-
+                print(Fore.CYAN + "Number of Attacks: ", str(numberOfAttacks), "    Number of failed attacks:", numberOfFailures, "    Uptime: ", str(totalDaysUpTime), " days, ", str(totalHoursUpTime), " hours, ", str(totalMinutesUpTime), " minutes, ", str(totalSecondsUpTime), " seconds",
+                    "    Last Attack Cycle: ", str(timeSecondsThisRound), " seconds", end='\r')
+            except:
+                numberOfFailures += 1
+                print(Fore.CYAN + "Number of Attacks: ", str(numberOfAttacks), "    Number of failed attacks:", numberOfFailures, "    Uptime: ", str(totalDaysUpTime), " days, ", str(totalHoursUpTime), " hours, ", str(totalMinutesUpTime), " minutes, ", str(totalSecondsUpTime), " seconds",
+                    "    Last Attack Cycle: ", str(timeSecondsThisRound), " seconds", end='\r')
         # Exit code
         time.sleep(30)
         currentSiteIndex = + 1
