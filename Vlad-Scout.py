@@ -15,25 +15,33 @@ import time
 from selenium import webdriver
 from ExternalMethods import printVladScoutLogo
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
 
 # ================================================== #
 # Initiating lists and variables, etc. Retrieving password
-with open("Your path to your document with your credentials", 'r') as file:
+with open("Your path name here", 'r') as file:
     credentials = file.readlines()
 accountUsername = credentials[0]
 accountPassword = credentials[1]
-
-
-# Initializing Outlook, allowing user to sign in.
-browser = webdriver.Firefox()
-browser.get('https://outlook.office.com/mail/')
-proceed = input("Once ready, strike the 'return' key to initialize the scout.")
 printVladScoutLogo()
 
 while True:
+    # Initializing Outlook, allowing user to sign in.
+    browser = webdriver.Firefox()
+    browser.get('https://outlook.office.com/mail/')
+    usernameField = browser.find_element(By.CSS_SELECTOR, "#i0116")
+    usernameField.send_keys(accountUsername)
+    usernameField.send_keys(Keys.RETURN)
+    passwordField = browser.find_element(By.CSS_SELECTOR, "#i0118")
+    passwordField.send_keys(accountPassword)
+    passwordField.send_keys(Keys.RETURN)
+    actions = ActionChains(browser)
+    actions.send_keys(Keys.RETURN)
+
     # Scan content for links, or the phrase 'https', 'www', etc
     listOfLinks = browser.find_elements(By.PARTIAL_LINK_TEXT, '')
     print(listOfLinks)
 
     # If a link is found, check for white/blacklist. If match for neither, put in purgatory
-    time.sleep(5)
+    time.sleep(30)
