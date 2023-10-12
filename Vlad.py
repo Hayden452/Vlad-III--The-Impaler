@@ -5,7 +5,9 @@ import random
 from ExternalMethods import SelectPoison, findQuery, replaceAllCapitalsInCharacter, printVladLogo
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 from colorama import Fore
+
 version = '1.3'
 answerListCounter = 0
 listOfTextLists = []
@@ -43,7 +45,6 @@ while True:
         personalEmail = str()
         personalEmailRandomizing = random.randint(0, 1)
         lapTimeStart = time.time()
-
         # Attacking each site
         for spot in listOfPhishingSpots:
             try:
@@ -63,7 +64,7 @@ while True:
                             parentElement.find_element(By.CSS_SELECTOR, "#i1 > span:nth-child(1)")
                             isQuery = True
                             potentialText = parentElement.text
-                        except:
+                        except NoSuchElementException:
                             childElement = parentElement
                             isQuery = False
                     isQuery = False
@@ -81,10 +82,10 @@ while True:
                     questionList.append(str(tempWord))
                     tempWord = ''
                 listOfTextLists.append(questionList)
-        # ======================================================================== #
+                # ======================================================================== #
                 # Random values selection:
 
-                # Selecting poison (fake data). Must pass it (randomBaseNumber, newNameCounter, personalEmailRandomizing)
+                # Selecting poison (fake data). Must pass (randomBaseNumber, newNameCounter, personalEmailRandomizing)
                 # returns in following list format: 
                 # randomValues[0] = Full name
                 # randomValues[1] = First name
@@ -102,7 +103,7 @@ while True:
                 randomBaseNumber = random.randint(0, 55555)
                 randomValues.clear()
                 randomValues = SelectPoison(randomBaseNumber, newNameCounter, personalEmailRandomizing)
-        # ======================================================================== #
+                # ======================================================================== #
                 # Preparation for what the phishing site is looking for
                 listOfQuestions = listOfTextLists[currentSiteIndex]
 
@@ -110,18 +111,11 @@ while True:
                     # Returns answers for questions in order. 
                     listOfAnswers.append(findQuery(question, randomValues))
 
-                # Clicks the submit button twice. There is a possibility that the submit button is temporarily hidden, 
-                # so we click the button the second just to be safe. This should throw an error, which we ignore, but it
-                # could be useful in cases where the number of button clicks needed is unknown.
+                # Sending answers to text fields 
                 for element in listOfImportantElements:
-                    try:
-                        element.click()
-                        element.send_keys(listOfAnswers[answerListCounter])
-                        answerListCounter += 1
-                    except Exception as e:
-                        element.click()
-                        element.send_keys(listOfAnswers[answerListCounter])
-                        answerListCounter += 1
+                    element.click()
+                    element.send_keys(listOfAnswers[answerListCounter])
+                    answerListCounter += 1
                 answerListCounter = 0
 
                 # Finding the submit element, submitting form.
@@ -138,17 +132,19 @@ while True:
                 totalSeconds = (lapTimeEnd - startTime)
                 totalSecondsUpTime = round((totalSeconds % 60), 2)
 
-                totalMinutesUpTime = round(((totalSeconds) / 60), 1)
-                totalHoursUpTime = round(((totalMinutesUpTime) / 60), 1)
-                totalDaysUpTime = round(((totalHoursUpTime) / 24), 1)
+                totalMinutesUpTime = round((totalSeconds / 60), 1)
+                totalHoursUpTime = round((totalMinutesUpTime / 60), 1)
+                totalDaysUpTime = round((totalHoursUpTime / 24), 1)
 
-
-                print(Fore.CYAN + "Number of Attacks: ", str(numberOfAttacks), "    Number of failed attacks:", numberOfFailures, "    Uptime: ", str(totalDaysUpTime), " days, ", str(totalHoursUpTime), " hours, ", str(totalMinutesUpTime), " minutes, ", str(totalSecondsUpTime), " seconds",
-                    "    Last Attack Cycle: ", str(timeSecondsThisRound), " seconds", end='\r')
-            except:
+                print(Fore.CYAN + "Number of Attacks: ", str(numberOfAttacks), "    Number of failed attacks: ",
+                      numberOfFailures, "    Uptime: ", str(totalDaysUpTime), " days, ", str(totalHoursUpTime),
+                      " hours, ", str(totalMinutesUpTime), " minutes, ", str(totalSecondsUpTime), " seconds",
+                      "    Last Attack Cycle: ", str(timeSecondsThisRound), " seconds", end='\r')
+            except Exception as e:
+                print('Encountered a fatal error: ', e)
                 numberOfFailures += 1
-                print(Fore.CYAN + "Number of Attacks: ", str(numberOfAttacks), "    Number of failed attacks:", numberOfFailures, "    Uptime: ", str(totalDaysUpTime), " days, ", str(totalHoursUpTime), " hours, ", str(totalMinutesUpTime), " minutes, ", str(totalSecondsUpTime), " seconds",
-                    "    Last Attack Cycle: ", str(timeSecondsThisRound), " seconds", end='\r')
+                print(Fore.CYAN + "Number of Attacks: ", numberOfAttacks, " Number of failed attacks: ",
+                      numberOfFailures)
         # Exit code
         time.sleep(30)
         currentSiteIndex = + 1
