@@ -145,6 +145,7 @@ while True:
                 numberOfFailures += 1
                 print(Fore.CYAN + "Number of Attacks: ", numberOfAttacks, " Number of failed attacks: ",
                       numberOfFailures)
+                browser.close()
         # Exit code
         time.sleep(30)
         currentSiteIndex = + 1

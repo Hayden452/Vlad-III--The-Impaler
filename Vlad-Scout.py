@@ -84,7 +84,7 @@ while True:
                     with open("SITES-URLsToAttack.txt", 'a') as file:
                         file.write(link.get_attribute('href'))
                 else:
-                    print('Link is already being attacked')
+                    print('Link is already being attacked: ' + str(link.get_attribute('href')))
 
             # If no, put in purgatory for manual human decision.
             else:
